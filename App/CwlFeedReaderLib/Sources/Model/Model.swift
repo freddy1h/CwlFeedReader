@@ -35,6 +35,19 @@ public class Model: ObservableObject {
 		isReadStatuses = statuses
 		services.keyValueService[key: "isReadStatuses", type: [URL: Bool].self] = isReadStatuses
 	}
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func reloadAsync() async {
+        let request = URLRequest(url: URL(string: "https://www.cocoawithlove.com/feed.json")!)
+        do {
+            let (data, _) = try await services.networkService.fetchDataAsync(for: request, delegate: nil)
+            let feed = try JSONDecoder().decode(Feed.self, from: data)
+            DispatchQueue.main.async { self.feed = feed }
+        }
+        catch {
+            DispatchQueue.main.async { self.error = IdentifiableError(underlying: error) }
+        }
+    }
 	
 	public func reload() {
 		let request = URLRequest(url: URL(string: "https://www.cocoawithlove.com/feed.json")!)

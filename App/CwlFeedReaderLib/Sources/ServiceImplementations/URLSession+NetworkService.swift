@@ -10,4 +10,9 @@ extension URLSession: NetworkService {
 		task.resume()
 		return AnyCancellable(task)
 	}
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func fetchDataAsync(for request: URLRequest, delegate: URLSessionTaskDelegate? = nil) async throws -> (Data, URLResponse) {
+        return try await data(for: request, delegate: delegate)
+    }
 }

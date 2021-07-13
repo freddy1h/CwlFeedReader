@@ -9,6 +9,23 @@ public extension Services {
 }
 
 class MockNetworkService: NetworkService {
+    @available(iOS 15.0, macOS 12.0, *)
+    func fetchDataAsync(for request: URLRequest, delegate: URLSessionTaskDelegate?) async throws -> (Data, URLResponse) {
+        guard let method = request.httpMethod, let url = request.url else {
+            throw URLError(.badURL)
+        }
+
+        switch "\(method) \(url.absoluteString)" {
+        case "GET https://www.cocoawithlove.com/feed.json":
+            let success = async {
+                return (mockFixture(name: "feed.json"), URLResponse.successResponse(url))
+            }
+            return await success.get()
+        default:
+            throw URLError(.fileDoesNotExist)
+        }
+    }
+
 	func fetchData(with request: URLRequest, handler: @escaping (Data?, URLResponse?, Error?) -> Void) -> AnyCancellable {
 		guard let method = request.httpMethod, let url = request.url else {
 			handler(nil, nil, URLError(.badURL))
